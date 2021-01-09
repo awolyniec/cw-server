@@ -1,4 +1,8 @@
 {
+  "name": "cw-server",
+  "version": "0.1.0",
+  "private": true,
+  "main": "server.js",
   "dependencies": {
     "lodash": "^4.17.20",
     "ws": "^7.4.2"
