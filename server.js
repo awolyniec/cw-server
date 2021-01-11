@@ -6,11 +6,13 @@ const server = new WebSocket.Server({ port: 8080 });
 // TODO: if a client drops, log them out
 // TODO: implement origin-checking
 
-const USERS = []; // in-memory data store
+// in-memory data store
+const USERS = [];
+const USER_CLIENTS = [];
 
 const broadcastMessageToAllUsers = (message) => {
   server.clients.forEach(function each(client) {
-    if (client.readyState === WebSocket.OPEN) {
+    if (client.readyState === WebSocket.OPEN && USER_CLIENTS.indexOf(client) >= 0) {
       client.send(message);
     }
   });
@@ -25,6 +27,7 @@ const handleUserEnterChat = (client, message) => {
       name: userName,
       color
     });
+    USER_CLIENTS.push(client);
     // inform all users that a user has entered (and confirm to the logged-in user that they have signed in)
     broadcastMessageToAllUsers(JSON.stringify({
       type: 'userEnterChat',
@@ -34,7 +37,6 @@ const handleUserEnterChat = (client, message) => {
       },
       createdAt: new Date()
     }));
-    // TODO: only after user has entered chat do we allow them to receive chat messages
     const otherUsers = USERS.filter(user => user.name !== userName);
     client.send(JSON.stringify({
       type: 'initialSlateOfOtherUsers',
@@ -51,8 +53,12 @@ server.on('connection', function connection(client) {
   client.on('message', function incoming(message) {
     const messageJSON = JSON.parse(message);
     const { type } = messageJSON;
+    // TODO: reject message if user hasn't entered chat yet
     if (type === 'userEnterChat') {
       handleUserEnterChat(client, messageJSON);
+    } else if (type === 'message') {
+      const chatEvent = Object.assign({}, messageJSON, { createdAt: new Date() });
+      broadcastMessageToAllUsers(JSON.stringify(chatEvent));
     }
   });
 });
