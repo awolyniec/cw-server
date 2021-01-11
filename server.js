@@ -34,12 +34,16 @@ const handleUserEnterChat = (ws, message) => {
       },
       createdAt: new Date()
     }));
+    // TODO: only after user has entered chat do we allow them to receive chat messages
+    // TODO: send other users
   } else {
     console.error(`Non-unique user trying to enter: ${JSON.stringify(message, null, 2)}`);
+    // TODO: reject connection; handle on front end
   }
 };
 
 wss.on('connection', function connection(ws) {
+  console.log('New connection.');
   ws.on('message', function incoming(message) {
     const messageJSON = JSON.parse(message);
     const { type } = messageJSON;
