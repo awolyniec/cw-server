@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({ port: 8080 });
+const server = new WebSocket.Server({ port: 8080 });
 
 // TODO: after server start, make sure all clients have to sign in right after connecting
 // TODO: if a client drops, log them out
@@ -9,14 +9,14 @@ const wss = new WebSocket.Server({ port: 8080 });
 const USERS = []; // in-memory data store
 
 const broadcastMessageToAllUsers = (message) => {
-  wss.clients.forEach(function each(client) {
+  server.clients.forEach(function each(client) {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
     }
   });
 };
 
-const handleUserEnterChat = (ws, message) => {
+const handleUserEnterChat = (client, message) => {
   const { data: { userName, color } } = message;
   const isUserUnique = !USERS.find(user => user.name === userName);
   if (isUserUnique) {
@@ -35,20 +35,24 @@ const handleUserEnterChat = (ws, message) => {
       createdAt: new Date()
     }));
     // TODO: only after user has entered chat do we allow them to receive chat messages
-    // TODO: send other users
+    const otherUsers = USERS.filter(user => user.name !== userName);
+    client.send(JSON.stringify({
+      type: 'initialSlateOfOtherUsers',
+      data: otherUsers
+    }));
   } else {
     console.error(`Non-unique user trying to enter: ${JSON.stringify(message, null, 2)}`);
     // TODO: reject connection; handle on front end
   }
 };
 
-wss.on('connection', function connection(ws) {
+server.on('connection', function connection(client) {
   console.log('New connection.');
-  ws.on('message', function incoming(message) {
+  client.on('message', function incoming(message) {
     const messageJSON = JSON.parse(message);
     const { type } = messageJSON;
     if (type === 'userEnterChat') {
-      handleUserEnterChat(ws, messageJSON);
+      handleUserEnterChat(client, messageJSON);
     }
   });
 });
