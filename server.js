@@ -28,8 +28,11 @@ const handleUserEnterChat = (ws, message) => {
     // inform all users that a user has entered (and confirm to the logged-in user that they have signed in)
     broadcastMessageToAllUsers(JSON.stringify({
       type: 'userEnterChat',
-      userName,
-      color
+      data: {
+        name: userName,
+        color
+      },
+      createdAt: new Date()
     }));
   } else {
     console.error(`Non-unique user trying to enter: ${JSON.stringify(message, null, 2)}`);
