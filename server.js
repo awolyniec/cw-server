@@ -7,29 +7,29 @@ const server = new WebSocket.Server({ port: 8080 });
 // TODO: implement origin-checking
 
 // in-memory data store
-const USERS = [];
-const USER_CLIENTS = [];
+const USER_BY_USERNAME = {};
+const USER_CLIENT_BY_USERNAME = {};
 
 const broadcastMessageToAllUsers = (message) => {
   server.clients.forEach(function each(client) {
-    if (client.readyState === WebSocket.OPEN && USER_CLIENTS.indexOf(client) >= 0) {
+    if (client.readyState === WebSocket.OPEN && Object.values(USER_CLIENT_BY_USERNAME).indexOf(client) >= 0) {
       client.send(message);
     }
   });
 };
 
-const isClientLoggedIn = client => !!USER_CLIENTS.find(userClient => userClient === client);
+const isClientLoggedIn = client => !!Object.values(USER_CLIENT_BY_USERNAME).find(userClient => userClient === client);
 
 const handleUserEnterChat = (client, message) => {
+  const USERS = Object.values(USER_BY_USERNAME);
   const { data: { userName, color } } = message;
-  const isUserUnique = !USERS.find(user => user.name === userName);
-  if (isUserUnique) {
+  if (!USER_BY_USERNAME[userName]) {
     console.log(`User entering chat: ${JSON.stringify(message, null, 2)}`);
-    USERS.push({
+    USER_BY_USERNAME[userName] = {
       name: userName,
       color
-    });
-    USER_CLIENTS.push(client);
+    };
+    USER_CLIENT_BY_USERNAME[userName] = client;
     // inform all users that a user has entered (and confirm to the logged-in user that they have signed in)
     broadcastMessageToAllUsers(JSON.stringify({
       type: 'userEnterChat',
@@ -57,11 +57,12 @@ const handleUserEnterChat = (client, message) => {
 };
 
 const cleanUpClient = client => {
-  const userClientIndex = USER_CLIENTS.indexOf(client);
-  if (userClientIndex >= 0) {
-    // TODO: race condition here?
-    USERS.splice(userClientIndex, 1);
-    USER_CLIENTS.splice(userClientIndex, 1);
+  const userName = Object.keys(USER_CLIENT_BY_USERNAME).find(userName => {
+    return USER_CLIENT_BY_USERNAME[userName] === client;
+  });
+  if (userName) {
+    delete USER_BY_USERNAME[userName];
+    delete USER_CLIENT_BY_USERNAME[userName];
   }
 };
 
@@ -83,6 +84,7 @@ server.on('connection', function connection(client) {
   });
 
   client.on('close', function close() {
+    console.log('Closing a connection...');
     cleanUpClient(client);
   });
 });
