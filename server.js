@@ -56,6 +56,15 @@ const handleUserEnterChat = (client, message) => {
   }
 };
 
+const cleanUpClient = client => {
+  const userClientIndex = USER_CLIENTS.indexOf(client);
+  if (userClientIndex >= 0) {
+    // TODO: race condition here?
+    USERS.splice(userClientIndex, 1);
+    USER_CLIENTS.splice(userClientIndex, 1);
+  }
+};
+
 server.on('connection', function connection(client) {
   console.log('New connection.');
   client.on('message', function incoming(message) {
@@ -65,12 +74,15 @@ server.on('connection', function connection(client) {
     if (!isClientLoggedIn(client) && type !== 'userEnterChat') {
       return;
     }
-
     if (type === 'userEnterChat') {
       handleUserEnterChat(client, messageJSON);
     } else if (type === 'message') {
       const chatEvent = Object.assign({}, messageJSON, { createdAt: new Date() });
       broadcastMessageToAllUsers(JSON.stringify(chatEvent));
     }
+  });
+
+  client.on('close', function close() {
+    cleanUpClient(client);
   });
 });
