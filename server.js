@@ -63,6 +63,12 @@ const cleanUpClient = client => {
   if (userName) {
     delete USER_BY_USERNAME[userName];
     delete USER_CLIENT_BY_USERNAME[userName];
+    broadcastMessageToAllUsers(JSON.stringify({
+      type: 'userLeaveChat',
+      data: {
+        name: userName
+      }
+    }));
   }
 };
 
