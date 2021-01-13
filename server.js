@@ -18,6 +18,8 @@ const broadcastMessageToAllUsers = (message) => {
   });
 };
 
+const isClientLoggedIn = client => !!USER_CLIENTS.find(userClient => userClient === client);
+
 const handleUserEnterChat = (client, message) => {
   const { data: { userName, color } } = message;
   const isUserUnique = !USERS.find(user => user.name === userName);
@@ -44,7 +46,13 @@ const handleUserEnterChat = (client, message) => {
     }));
   } else {
     console.error(`Non-unique user trying to enter: ${JSON.stringify(message, null, 2)}`);
-    // TODO: reject connection; handle on front end
+    client.send(JSON.stringify({
+      type: 'error',
+      data: {
+        type: 'signInFailed',
+        message: `Username ${userName} is taken.`
+      }
+    }));
   }
 };
 
@@ -53,7 +61,11 @@ server.on('connection', function connection(client) {
   client.on('message', function incoming(message) {
     const messageJSON = JSON.parse(message);
     const { type } = messageJSON;
-    // TODO: reject message if user hasn't entered chat yet
+    // for users that aren't signed in, only accept login messages
+    if (!isClientLoggedIn(client) && type !== 'userEnterChat') {
+      return;
+    }
+
     if (type === 'userEnterChat') {
       handleUserEnterChat(client, messageJSON);
     } else if (type === 'message') {
