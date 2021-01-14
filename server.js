@@ -72,8 +72,8 @@ const cleanUpClient = client => {
   }
 };
 
-function heartbeat() {
-  this.isAlive = true;
+function heartbeat(client) {
+  client.isAlive = true;
 };
 
 const interval = setInterval(function ping() {
@@ -85,15 +85,15 @@ const interval = setInterval(function ping() {
     }
 
     client.isAlive = false;
-    client.ping(() => {});
+    client.send(JSON.stringify({
+      type: 'ping'
+    }));
   });
 }, 30000);
 
 server.on('connection', function connection(client) {
   console.log('New connection.');
   client.isAlive = true;
-
-  client.on('pong', heartbeat);
 
   client.on('message', function incoming(message) {
     const messageJSON = JSON.parse(message);
@@ -107,6 +107,8 @@ server.on('connection', function connection(client) {
     } else if (type === 'message') {
       const chatEvent = Object.assign({}, messageJSON, { createdAt: new Date() });
       broadcastMessageToAllUsers(JSON.stringify(chatEvent));
+    } else if (type === 'pong') {
+      heartbeat(client);
     }
   });
 
