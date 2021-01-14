@@ -4,9 +4,7 @@ const extend = require('extend');
 const env = process.env.NODE_ENV || 'development';
 
 const config = {
-  base: {
-    port: 8080
-  },
+  base: {},
   development: {
     originWhitelist: [
       'http://localhost:3000'
