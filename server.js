@@ -1,8 +1,6 @@
 const WebSocket = require('ws');
 
-const { originWhitelist } = require('./config');
-
-const port = process.env.PORT || 8080;
+const { originWhitelist, port } = require('./config');
 
 const server = new WebSocket.Server({ port });
 

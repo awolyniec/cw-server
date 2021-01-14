@@ -4,7 +4,9 @@ const extend = require('extend');
 const env = process.env.NODE_ENV || 'development';
 
 const config = {
-  base: {},
+  base: {
+    port: 8080
+  },
   development: {
     originWhitelist: [
       'http://localhost:3000'
@@ -12,7 +14,8 @@ const config = {
   },
   production: {
     originWhitelist: [
-      'https://chattywatty-web.herokuapp.com/'
+      'https://chattywatty-web.herokuapp.com/',
+      'http://chattywatty-web.herokuapp.com/'
     ]
   }
 };
