@@ -4,7 +4,6 @@
   "private": true,
   "main": "server.js",
   "dependencies": {
-    "express": "^4.17.1",
     "extend": "^3.0.2",
     "ws": "^7.4.2"
   }

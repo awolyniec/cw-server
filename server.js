@@ -1,14 +1,8 @@
 const WebSocket = require('ws');
-const express = require(express);
 
 const { originWhitelist } = require('./config');
 
-const port = process.env.PORT || 8080;
-
-const httpServer = express()
-  .listen(port, () => console.log(`Listening on ${port}`));
-
-const server = new WebSocket.Server({ server: httpServer });
+const server = new WebSocket.Server({ port: process.env.PORT || 8080 });
 
 // TODO: implement origin-checking
 
