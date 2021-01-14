@@ -58,6 +58,14 @@ const handleUserEnterChat = (client, message) => {
   }
 };
 
+const handleMessage = messageJSON => {
+  const { data } = messageJSON;
+  const { user } = data;
+  const messageData = Object.assign({}, data, { color: USER_BY_USERNAME[user].color });
+  const chatEvent = Object.assign({}, messageJSON, { data: messageData, createdAt: new Date() });
+  broadcastMessageToAllUsers(JSON.stringify(chatEvent));
+};
+
 const cleanUpClient = client => {
   const userName = Object.keys(USER_CLIENT_BY_USERNAME).find(userName => {
     return USER_CLIENT_BY_USERNAME[userName] === client;
@@ -113,8 +121,7 @@ server.on('connection', function connection(client, req) {
     if (type === 'userEnterChat') {
       handleUserEnterChat(client, messageJSON);
     } else if (type === 'message') {
-      const chatEvent = Object.assign({}, messageJSON, { createdAt: new Date() });
-      broadcastMessageToAllUsers(JSON.stringify(chatEvent));
+      handleMessage(messageJSON);
     } else if (type === 'pong') {
       heartbeat(client);
     }
