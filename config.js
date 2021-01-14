@@ -11,7 +11,9 @@ const config = {
     ]
   },
   production: {
-    originWhitelist: [] // TODO: add prod URL for front end
+    originWhitelist: [
+      'https://chattywatty-web.herokuapp.com/'
+    ]
   }
 };
 
