@@ -1,9 +1,10 @@
 {
-  "name": "cw-server",
+  "name": "@awolyniec/cw-server",
   "version": "0.1.0",
   "private": true,
   "main": "server.js",
   "dependencies": {
+    "extend": "^3.0.2",
     "ws": "^7.4.2"
   }
 }

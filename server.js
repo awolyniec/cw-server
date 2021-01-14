@@ -1,5 +1,7 @@
 const WebSocket = require('ws');
 
+const { originWhitelist } = require('./config');
+
 const server = new WebSocket.Server({ port: 8080 });
 
 // TODO: implement origin-checking
@@ -7,10 +9,6 @@ const server = new WebSocket.Server({ port: 8080 });
 // in-memory data store
 const USER_BY_USERNAME = {};
 const USER_CLIENT_BY_USERNAME = {};
-
-const ALLOWED_ORIGINS = [
-  'http://localhost:3000'
-];
 
 const broadcastMessageToAllUsers = (message) => {
   server.clients.forEach(function each(client) {
@@ -105,7 +103,7 @@ server.on('connection', function connection(client, req) {
   console.log('New connection.');
   // check origin
   const origin = req.headers.origin;
-  if (ALLOWED_ORIGINS.indexOf(origin) < 0) {
+  if (originWhitelist.indexOf(origin) < 0) {
     console.log('Closing a connection...');
     client.terminate(); // TODO: add error message
   }
