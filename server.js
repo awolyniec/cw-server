@@ -72,8 +72,29 @@ const cleanUpClient = client => {
   }
 };
 
+function heartbeat() {
+  this.isAlive = true;
+};
+
+const interval = setInterval(function ping() {
+  server.clients.forEach(function each(client) {
+    if (client.isAlive === false) {
+      console.error('Client lost.');
+      client.terminate();
+      cleanUpClient(client);
+    }
+
+    client.isAlive = false;
+    client.ping(() => {});
+  });
+}, 30000);
+
 server.on('connection', function connection(client) {
   console.log('New connection.');
+  client.isAlive = true;
+
+  client.on('pong', heartbeat);
+
   client.on('message', function incoming(message) {
     const messageJSON = JSON.parse(message);
     const { type } = messageJSON;
@@ -93,4 +114,8 @@ server.on('connection', function connection(client) {
     console.log('Closing a connection...');
     cleanUpClient(client);
   });
+});
+
+server.on('close', function close() {
+  clearInterval(interval);
 });
