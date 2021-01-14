@@ -2,13 +2,15 @@ const WebSocket = require('ws');
 
 const server = new WebSocket.Server({ port: 8080 });
 
-// TODO: after server start, make sure all clients have to sign in right after connecting
-// TODO: if a client drops, log them out
 // TODO: implement origin-checking
 
 // in-memory data store
 const USER_BY_USERNAME = {};
 const USER_CLIENT_BY_USERNAME = {};
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000'
+];
 
 const broadcastMessageToAllUsers = (message) => {
   server.clients.forEach(function each(client) {
@@ -91,8 +93,14 @@ const interval = setInterval(function ping() {
   });
 }, 30000);
 
-server.on('connection', function connection(client) {
+server.on('connection', function connection(client, req) {
   console.log('New connection.');
+  // check origin
+  const origin = req.headers.origin;
+  if (ALLOWED_ORIGINS.indexOf(origin) < 0) {
+    console.log('Closing a connection...');
+    client.terminate(); // TODO: add error message
+  }
   client.isAlive = true;
 
   client.on('message', function incoming(message) {
@@ -113,7 +121,7 @@ server.on('connection', function connection(client) {
   });
 
   client.on('close', function close() {
-    console.log('Closing a connection...');
+    console.log('Connection closed...');
     cleanUpClient(client);
   });
 });
