@@ -104,6 +104,7 @@ server.on('connection', function connection(client, req) {
   // check origin
   const origin = req.headers.origin;
   if (originWhitelist.indexOf(origin) < 0) {
+    console.log(`Invalid origin: ${origin}`);
     console.log('Closing a connection...');
     client.terminate(); // TODO: add error message
   }
