@@ -3,8 +3,6 @@ const extend = require('extend');
 
 const env = process.env.NODE_ENV || 'development';
 
-console.log(`Env: ${env}`); // TODO: remove
-
 const config = {
   base: {},
   development: {
