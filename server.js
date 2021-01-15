@@ -2,6 +2,8 @@ const WebSocket = require('ws');
 
 const { originWhitelist } = require('./config');
 
+console.log(`Origin whitelist: ${JSON.stringify(originWhitelist)}`); // TODO: remove
+
 const server = new WebSocket.Server({ port: process.env.PORT || 8080 });
 
 // TODO: implement origin-checking
