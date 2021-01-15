@@ -4,8 +4,6 @@ const { originWhitelist } = require('./config');
 
 const server = new WebSocket.Server({ port: process.env.PORT || 8080 });
 
-// TODO: implement origin-checking
-
 // in-memory data store
 const USER_BY_USERNAME = {};
 const USER_CLIENT_BY_USERNAME = {};

@@ -12,8 +12,8 @@ const config = {
   },
   production: {
     originWhitelist: [
-      'https://chattywatty-web.herokuapp.com/',
-      'http://chattywatty-web.herokuapp.com/'
+      'https://chattywatty-web.herokuapp.com',
+      'http://chattywatty-web.herokuapp.com'
     ]
   }
 };
